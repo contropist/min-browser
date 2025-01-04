@@ -159,6 +159,7 @@
     "settingsAdditionalFeaturesHeading": "امکانات افزوده",
     "settingsUserscriptsToggle": "فعال کردن اسکریپت های کاربر",
     "settingsShowDividerToggle": "نمایش جداکننده",
+    "settingsLanguageSelection": null, //missing translation
     "settingsSeparateTitlebarToggle": "نمایش نوار عنوان",
     "settingsAutoplayToggle": "پخش خودکار",
     "settingsOpenTabsInForegroundToggle": null, //missing translation
@@ -220,7 +221,7 @@
     "appMenuInspectBrowser": "وارسی مرورگر",
     "appMenuInspectPage": "وارسی برگه",
     "appMenuWindow": "پنجره",
-    "appMenuMinimize": "کیمنه",
+    "appMenuMinimize": "کمینه",
     "appMenuClose": "بستن",
     "appMenuAlwaysOnTop": "نمایش همیشگی",
     "appMenuHelp": "راهنما",
@@ -236,6 +237,9 @@
     "appMenuShowAll": "نمایش همه",
     "appMenuQuit": "خروج از %n",
     "appMenuBringToFront": "نمایش همه",
+    /* Tab menu */
+    "tabMenuNewWindow": null, // missing translation
+    "tabMenuReload": null, // missing translation
     /* PDF Viewer */
     "PDFInvertPage": null, //missing translation
     "PDFPageCounter": {
@@ -281,6 +285,7 @@
     "passwordCaptureSave": null, //missing translation
     "passwordCaptureDontSave": null, //missing translation
     "passwordCaptureNeverSave": null, //missing translation
+    "generatePassword": null, // missing translation
     /* Password viewer */
     "savedPasswordsHeading": null, //missing translation
     "savedPasswordsEmpty": null,  //missing translation

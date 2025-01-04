@@ -157,6 +157,7 @@
     "settingsSiteThemeToggle": "Активиране на теми на сайтове",
     "settingsAdditionalFeaturesHeading": "Допълнителни функции",
     "settingsUserscriptsToggle": "Активиране на потребителски скриптове",
+    "settingsLanguageSelection": null, //missing translation
     "settingsSeparateTitlebarToggle": "Използване на отделна лента със заглавието",
     "settingsAutoplayToggle": null, //missing translation 
     "settingsOpenTabsInForegroundToggle": "Отваряне на нови раздели на преден план",
@@ -234,6 +235,9 @@
     "appMenuShowAll": "Покажи всички",
     "appMenuQuit": "Излизане от %n",
     "appMenuBringToFront": "Извеждане на всички отпред",
+    /* Tab menu */
+    "tabMenuNewWindow": null, // missing translation
+    "tabMenuReload": null, // missing translation
     /* PDF Viewer */
     "PDFInvertPage": null, //missing translation
     "PDFPageCounter": {
@@ -283,6 +287,7 @@
     "passwordCaptureSave": "Запази",
     "passwordCaptureDontSave": "Не запазвай",
     "passwordCaptureNeverSave": null, //missing translation
+    "generatePassword": null, // missing translation
     /* Password viewer */
     "savedPasswordsHeading": "Запазени пароли",
     "savedPasswordsEmpty": "Няма запазени пароли.",

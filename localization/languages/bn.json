@@ -158,6 +158,7 @@
     "settingsAdditionalFeaturesHeading": "অতিরিক্ত বৈশিষ্ট্য",
     "settingsUserscriptsToggle": "ব্যবহারকারী স্ক্রিপ্ট সক্রিয় করুন",
     "settingsShowDividerToggle": "ট্যাবগুলির মধ্যে বিভাজক দেখান",
+    "settingsLanguageSelection": null, //missing translation
     "settingsSeparateTitlebarToggle": "পৃথক শিরোনাম বার ব্যবহার করুন",
     "settingsAutoplayToggle": null, //missing translation 
     "settingsOpenTabsInForegroundToggle": "অগ্রভাগে নতুন ট্যাবগুলি খুলুন",
@@ -235,6 +236,9 @@
     "appMenuShowAll": "সব দেখাও",
     "appMenuQuit": "%n ছাড়ুন",
     "appMenuBringToFront": "সব থেকে সামনে আনুন",
+    /* Tab menu */
+    "tabMenuNewWindow": null, // missing translation
+    "tabMenuReload": null, // missing translation
     /* PDF Viewer */
     "PDFInvertPage": null, //missing translation
     "PDFPageCounter": {
@@ -280,6 +284,7 @@
     "passwordCaptureSave": "সংরক্ষণ করুন",
     "passwordCaptureDontSave": "সংরক্ষণ না করুন",
     "passwordCaptureNeverSave": "কখনও সংরক্ষণ করবেন না",
+    "generatePassword": null, // missing translation
     /* Password viewer */
     "savedPasswordsHeading": "সংরক্ষিত পাসওয়ার্ডস",
     "savedPasswordsEmpty": "কোনো সংরক্ষিত পাসওয়ার্ড নেই।",

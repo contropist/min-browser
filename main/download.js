@@ -11,11 +11,7 @@ function isAttachment (header) {
 }
 
 function downloadHandler (event, item, webContents) {
-  const sourceView = Object.values(viewMap).find(view => view.webContents.id === webContents.id)
-  let sourceWindow
-  if (sourceView) {
-    sourceWindow = BrowserWindow.fromBrowserView(sourceView)
-  }
+  let sourceWindow = windows.windowFromContents(webContents)?.win
   if (!sourceWindow) {
     sourceWindow = windows.getCurrent()
   }
@@ -64,10 +60,7 @@ function listenForDownloadHeaders (ses) {
     if (details.resourceType === 'mainFrame' && details.responseHeaders) {
       let sourceWindow
       if (details.webContents) {
-        const sourceView = Object.values(viewMap).find(view => view.webContents.id === details.webContents.id)
-        if (sourceView) {
-          sourceWindow = BrowserWindow.fromBrowserView(sourceView)
-        }
+        sourceWindow = windows.windowFromContents(details.webContents)?.win
       }
       if (!sourceWindow) {
         sourceWindow = windows.getCurrent()
@@ -79,7 +72,7 @@ function listenForDownloadHeaders (ses) {
 
       if (typeHeader instanceof Array && typeHeader.filter(t => t.includes('application/pdf')).length > 0 && !attachment) {
       // open in PDF viewer instead
-        callback({ cancel: true })
+        callback({ cancel: false })
         sendIPCToWindow(sourceWindow, 'openPDF', {
           url: details.url,
           tabId: null

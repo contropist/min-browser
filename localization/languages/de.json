@@ -158,6 +158,7 @@
     "settingsAdditionalFeaturesHeading": "Zusätzliche Funktionen",
     "settingsUserscriptsToggle": "Benutzerdefinierte Skripte aktivieren",
     "settingsShowDividerToggle": "Trennwand zwischen Tabs anzeigen",
+    "settingsLanguageSelection": null, //missing translation
     "settingsSeparateTitlebarToggle": "Separate Titelleiste nutzen",
     "settingsAutoplayToggle": "Automatische Wiedergabe erlauben", 
     "settingsOpenTabsInForegroundToggle": "Neue Tabs im Vordergrund öffnen",
@@ -237,6 +238,9 @@
     "appMenuShowAll": "Alle anzeigen",
     "appMenuQuit": "Beende %n",
     "appMenuBringToFront": "Alle nach vorne bringen",
+    /* Tab menu */
+    "tabMenuNewWindow": null, // missing translation
+    "tabMenuReload": null, // missing translation
     /* PDF Viewer */
     "PDFInvertPage": null, //missing translation
     "PDFPageCounter": {
@@ -286,6 +290,7 @@
     "passwordCaptureSave": "Speichern",
     "passwordCaptureDontSave": "Nicht speichern",
     "passwordCaptureNeverSave": "Niemals speichern",
+    "generatePassword": null, // missing translation
     /* Password viewer */
     "savedPasswordsHeading": "Gespeicherte Passwörter",
     "savedPasswordsEmpty": "Keine gespeicherten Passwörter",

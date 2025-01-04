@@ -1,5 +1,7 @@
+const writeFileAtomic = require('write-file-atomic')
+
 var settings = {
-  filePath: userDataPath + (process.platform === 'win32' ? '\\' : '/') + 'settings.json',
+  filePath: null,
   fileWritePromise: null,
   list: {},
   onChangeCallbacks: [],
@@ -13,7 +15,15 @@ var settings = {
 
     /* eslint-disable no-inner-declarations */
     function newFileWrite () {
-      return fs.promises.writeFile(settings.filePath, JSON.stringify(settings.list))
+      return new Promise(function (resolve, reject) {
+        writeFileAtomic(settings.filePath, JSON.stringify(settings.list), {}, function (err) {
+          if (err) {
+            reject(err)
+          } else {
+            resolve()
+          }
+        })
+      })
     }
 
     function ongoingFileWrite () {
@@ -53,20 +63,21 @@ var settings = {
     settings.runChangeCallbacks(key)
 
     windows.getAll().forEach(function (win) {
-      win.webContents.send('settingChanged', key, value)
+      getWindowWebContents(win).send('settingChanged', key, value)
     })
   },
-  initialize: function () {
-    var fileData
+  initialize: function (userDataPath) {
+    settings.filePath = userDataPath + (process.platform === 'win32' ? '\\' : '/') + 'settings.json'
+
     try {
-      fileData = fs.readFileSync(settings.filePath, 'utf-8')
+      const fileData = fs.readFileSync(settings.filePath, 'utf-8')
+      if (fileData) {
+        settings.list = JSON.parse(fileData)
+      }
     } catch (e) {
       if (e.code !== 'ENOENT') {
-        console.warn(e)
+        console.warn('Error reading settings file:', e)
       }
-    }
-    if (fileData) {
-      settings.list = JSON.parse(fileData)
     }
 
     ipc.on('settingChanged', function (e, key, value) {
@@ -75,13 +86,12 @@ var settings = {
       settings.runChangeCallbacks(key)
 
       windows.getAll().forEach(function (win) {
-        if (win.webContents.id !== e.sender.id) {
-          win.webContents.send('settingChanged', key, value)
+        if (getWindowWebContents(win).id !== e.sender.id) {
+          getWindowWebContents(win).send('settingChanged', key, value)
         }
       })
     })
   }
 }
 
-settings.initialize()
 module.exports = settings

@@ -10,8 +10,12 @@ function toPath (platform, arch) {
     switch (arch) {
       case Arch.ia32:
         return 'dist/app/win-ia32-unpacked'
-      default:
+      case Arch.arm64:
+        return 'dist/app/win-arm64-unpacked'
+      case Arch.x64:
         return 'dist/app/win-unpacked'
+      default:
+        return null
     }
   } else if (platform == 'linux') {
     switch (arch) {
@@ -30,6 +34,8 @@ function toPath (platform, arch) {
         return 'dist/app/mac-arm64'
       case Arch.x64:
         return 'dist/app/mac'
+      default:
+        return null
     }
   }
 }
@@ -133,7 +139,15 @@ module.exports = function (platform, extraOptions) {
       }
     ],
     asar: false,
-    afterPack: afterPack
+    afterPack: afterPack,
+    publish: null,
+    /*
+    Rebuilding native modules that use nan is currently broken for Electron 32+: https://github.com/nodejs/nan/issues/973
+    This breaks PDFJS -> canvas, which causes packaging to fail.
+    Luckily for us, we don't actually use this functionality in PDFJS, and this is the only native module in the build,
+    so we can just disable rebuilding entirely. However, we may need to find a better solution in the future.
+    */
+    npmRebuild: false
   }
 
   const target = (function () {

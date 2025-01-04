@@ -10,6 +10,7 @@ const tabEditor = {
   container: document.getElementById('tab-editor'),
   input: document.getElementById('tab-editor-input'),
   star: null,
+  isShown: false,
   show: function (tabId, editingValue, showSearchbar) {
     /* Edit mode is not available in modal mode. */
     if (modalMode.enabled()) {
@@ -17,6 +18,7 @@ const tabEditor = {
     }
 
     tabEditor.container.hidden = false
+    tabEditor.isShown = true
 
     bookmarkStar.update(tabId, tabEditor.star)
     contentBlockingToggle.update(tabId, tabEditor.contentBlockingToggle)
@@ -71,6 +73,7 @@ const tabEditor = {
   hide: function () {
     tabEditor.container.hidden = true
     tabEditor.container.removeAttribute('style')
+    tabEditor.isShown = false
 
     tabEditor.input.blur()
     searchbar.hide()
@@ -90,11 +93,11 @@ const tabEditor = {
 
     keyboardNavigationHelper.addToGroup('searchbar', tabEditor.container)
 
-    // keypress doesn't fire on delete key - use keyup instead
-    tabEditor.input.addEventListener('keyup', function (e) {
-      if (e.keyCode === 8) {
-        searchbar.showResults(this.value, e)
-      }
+    tabEditor.input.addEventListener('input', function (e) {
+      // handles all inputs except for the case where the selection is moved (since we call preventDefault() there)
+      searchbar.showResults(this.value, {
+        isDeletion: e.inputType.includes('delete')
+      })
     })
 
     tabEditor.input.addEventListener('keypress', function (e) {
@@ -106,27 +109,15 @@ const tabEditor = {
         } else {
           searchbar.openURL(this.value, e)
         }
-      } else if (e.keyCode === 9) {
-        return
-        // tab key, do nothing - in keydown listener
-      } else if (e.keyCode === 16) {
-        return
-        // shift key, do nothing
-      } else if (e.keyCode === 8) {
-        return
-        // delete key is handled in keyUp
-      } else { // show the searchbar
-        searchbar.showResults(this.value, e)
+        e.preventDefault()
       }
 
       // on keydown, if the autocomplete result doesn't change, we move the selection instead of regenerating it to avoid race conditions with typing. Adapted from https://github.com/patrickburke/jquery.inlineComplete
 
-      var v = e.key
-      var sel = this.value.substring(this.selectionStart, this.selectionEnd).indexOf(v)
-
-      if (v && sel === 0) {
+      if (e.key && this.selectionEnd === this.value.length && this.value[this.selectionStart] === e.key) {
         this.selectionStart += 1
         e.preventDefault()
+        searchbar.showResults(this.value.substring(0, this.selectionStart), {})
       }
     })
 

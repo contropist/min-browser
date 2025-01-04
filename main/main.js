@@ -5,7 +5,8 @@ const path = require('path')
 const {
   app, // Module to control application life.
   protocol, // Module to control protocol handling
-  BrowserWindow, // Module to create native browser window.
+  BaseWindow, // Module to create native browser window.
+  BrowserWindow,
   webContents,
   session,
   ipcMain: ipc,
@@ -14,7 +15,8 @@ const {
   dialog,
   nativeTheme,
   shell,
-  net
+  net,
+  WebContentsView
 } = electron
 
 crashReporter.start({
@@ -31,6 +33,7 @@ if (process.argv.some(arg => arg === '-v' || arg === '--version')) {
 
 let isInstallerRunning = false
 const isDevelopmentMode = process.argv.some(arg => arg === '--development-mode')
+const isDebuggingEnabled = process.argv.some(arg => arg === '--debug-browser')
 
 function clamp (n, min, max) {
   return Math.max(Math.min(n, max), min)
@@ -62,6 +65,12 @@ app.commandLine.appendSwitch('disable-backgrounding-occluded-windows', 'true')
 
 var userDataPath = app.getPath('userData')
 
+settings.initialize(userDataPath)
+
+if (settings.get('userSelectedLanguage')) {
+  app.commandLine.appendSwitch('lang', settings.get('userSelectedLanguage'))
+}
+
 const browserPage = 'min://app/index.html'
 
 var mainMenu = null
@@ -91,24 +100,24 @@ function sendIPCToWindow (window, action, data) {
     return
   }
 
-  if (window && window.webContents && window.webContents.isLoadingMainFrame()) {
+  if (window && getWindowWebContents(window).isLoadingMainFrame()) {
     // immediately after a did-finish-load event, isLoading can still be true,
     // so wait a bit to confirm that the page is really loading
     setTimeout(function() {
-      if (window.webContents.isLoadingMainFrame()) {
-        window.webContents.once('did-finish-load', function () {
-          window.webContents.send(action, data || {})
+      if (getWindowWebContents(window).isLoadingMainFrame()) {
+        getWindowWebContents(window).once('did-finish-load', function () {
+          getWindowWebContents(window).send(action, data || {})
         })
       } else {
-        window.webContents.send(action, data || {})
+         getWindowWebContents(window).send(action, data || {})
       }
     }, 0)
   } else if (window) {
-    window.webContents.send(action, data || {})
+    getWindowWebContents(window).send(action, data || {})
   } else {
     var window = createWindow()
-    window.webContents.once('did-finish-load', function () {
-      window.webContents.send(action, data || {})
+    getWindowWebContents(window).once('did-finish-load', function () {
+      getWindowWebContents(window).send(action, data || {})
     })
   }
 }
@@ -145,7 +154,7 @@ function handleCommandLineArguments (argv) {
   }
 }
 
-function createWindow () {
+function createWindow (customArgs = {}) {
   var bounds;
 
   try {
@@ -177,11 +186,11 @@ function createWindow () {
     maximized: bounds.maximized
   }
 
-  return createWindowWithBounds(bounds)
+  return createWindowWithBounds(bounds, customArgs)
 }
 
-function createWindowWithBounds (bounds) {
-  const newWin = new BrowserWindow({
+function createWindowWithBounds (bounds, customArgs) {
+  const newWin = new BaseWindow({
     width: bounds.width,
     height: bounds.height,
     x: bounds.x,
@@ -194,6 +203,15 @@ function createWindowWithBounds (bounds) {
     frame: settings.get('useSeparateTitlebar'),
     alwaysOnTop: settings.get('windowAlwaysOnTop'),
     backgroundColor: '#fff', // the value of this is ignored, but setting it seems to work around https://github.com/electron/electron/issues/10559
+  })
+
+  // windows and linux always use a menu button in the upper-left corner instead
+  // if frame: false is set, this won't have any effect, but it does apply on Linux if "use separate titlebar" is enabled
+  if (process.platform !== 'darwin') {
+    newWin.setMenuBarVisibility(false)
+  }
+
+  const mainView = new WebContentsView({
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -205,24 +223,24 @@ function createWindowWithBounds (bounds) {
         ...((isDevelopmentMode ? ['--development-mode'] : [])),
         '--window-id=' + windows.nextId,
         ...((windows.getAll().length === 0 ? ['--initial-window'] : [])),
-        ...(windows.hasEverCreatedWindow ? [] : ['--launch-window'])
+        ...(windows.hasEverCreatedWindow ? [] : ['--launch-window']),
+        ...(customArgs.initialTask ? ['--initial-task=' + customArgs.initialTask] : [])
       ]
     }
   })
+  mainView.webContents.loadURL(browserPage)
+  mainView.setBounds({x: 0, y: 0, width: bounds.width, height: bounds.height})
+  newWin.contentView.addChildView(mainView)
 
-  // windows and linux always use a menu button in the upper-left corner instead
-  // if frame: false is set, this won't have any effect, but it does apply on Linux if "use separate titlebar" is enabled
-  if (process.platform !== 'darwin') {
-    newWin.setMenuBarVisibility(false)
-  }
-
-  // and load the index.html of the app.
-  newWin.loadURL(browserPage)
+  newWin.on('resize', function() {
+    const winBounds = newWin.getBounds()
+    mainView.setBounds({x: 0, y: 0, width: winBounds.width, height: winBounds.height})
+  })
 
   if (bounds.maximized) {
     newWin.maximize()
 
-    newWin.webContents.once('did-finish-load', function () {
+    mainView.webContents.once('did-finish-load', function () {
       sendIPCToWindow(newWin, 'maximize')
     })
   }
@@ -261,7 +279,7 @@ function createWindowWithBounds (bounds) {
 
   newWin.on('blur', function () {
     // if the devtools for this window are focused, this check will be false, and we keep the focused class on the window
-    if (BrowserWindow.getFocusedWindow() !== newWin) {
+    if (BaseWindow.getFocusedWindow() !== newWin) {
       sendIPCToWindow(newWin, 'blur')
     }
   })
@@ -303,10 +321,14 @@ function createWindowWithBounds (bounds) {
   }
 
   // prevent remote pages from being loaded using drag-and-drop, since they would have node access
-  newWin.webContents.on('will-navigate', function (e, url) {
+  mainView.webContents.on('will-navigate', function (e, url) {
     if (url !== browserPage) {
       e.preventDefault()
     }
+  })
+
+  mainView.webContents.on('before-input-event', function(e, input) {
+    sendIPCToWindow(newWin, 'before-input-event', input)
   })
 
   newWin.setTouchBar(buildTouchBar())
@@ -332,7 +354,7 @@ app.on('ready', function () {
 
   const newWin = createWindow()
 
-  newWin.webContents.on('did-finish-load', function () {
+  getWindowWebContents(newWin).on('did-finish-load', function () {
     // if a URL was passed as a command line argument (probably because Min is set as the default browser on Linux), open it.
     handleCommandLineArguments(process.argv)
 
@@ -395,8 +417,7 @@ app.on('activate', function (/* e, hasVisibleWindows */) {
 })
 
 ipc.on('focusMainWebContents', function () {
-  //TODO fix
-  windows.getCurrent().webContents.focus()
+  getWindowWebContents(windows.getCurrent()).focus()
 })
 
 ipc.on('showSecondaryMenu', function (event, data) {
@@ -422,10 +443,15 @@ ipc.on('quit', function () {
 })
 
 ipc.on('tab-state-change', function(e, events) {
+  const sourceWindowId = windows.windowFromContents(e.sender)?.id
+  if (!sourceWindowId) {
+    console.warn('warning: received tab state update from window after destruction, ignoring')
+    return
+  }
   windows.getAll().forEach(function(window) {
-    if (window.webContents.id !== e.sender.id) {
-      window.webContents.send('tab-state-change-receive', {
-        sourceWindowId: windows.windowFromContents(e.sender).id,
+    if (getWindowWebContents(window).id !== e.sender.id) {
+      getWindowWebContents(window).send('tab-state-change-receive', {
+        sourceWindowId,
         events
       })
     }
@@ -433,14 +459,14 @@ ipc.on('tab-state-change', function(e, events) {
 })
 
 ipc.on('request-tab-state', function(e) {
-  const otherWindow = windows.getAll().find(w => w.webContents.id !== e.sender.id)
+  const otherWindow = windows.getAll().find(w => getWindowWebContents(w).id !== e.sender.id)
   if (!otherWindow) {
     throw new Error('secondary window doesn\'t exist as source for tab state')
   }
   ipc.once('return-tab-state', function(e2, data) {
     e.returnValue = data
   })
-  otherWindow.webContents.send('read-tab-state')
+  getWindowWebContents(otherWindow).send('read-tab-state')
 })
 
 /* places service */
@@ -465,3 +491,7 @@ app.once('ready', function() {
 ipc.on('places-connect', function (e) {
   placesWindow.webContents.postMessage('places-connect', null, e.ports)
 })
+
+function getWindowWebContents (win) {
+  return win.getContentView().children[0].webContents
+}

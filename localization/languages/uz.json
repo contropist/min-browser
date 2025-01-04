@@ -158,6 +158,7 @@
     "settingsAdditionalFeaturesHeading": "Qo'shimcha xususiyatlar",
     "settingsUserscriptsToggle": "Foydalanuvchi skriptlarini yoqish",
     "settingsShowDividerToggle": null, //missing translation
+    "settingsLanguageSelection": null, //missing translation
     "settingsSeparateTitlebarToggle": "Alohida sarlavha paneli ishlatish",
     "settingsAutoplayToggle": null, //missing translation 
     "settingsOpenTabsInForegroundToggle": null, //missing translation
@@ -235,6 +236,9 @@
     "appMenuShowAll": "Barchasini ko'rsatish",
     "appMenuQuit": "%n chiqish",
     "appMenuBringToFront": "Barchasini oldinga olib kelish",
+    /* Tab menu */
+    "tabMenuNewWindow": null, // missing translation
+    "tabMenuReload": null, // missing translation
     /* PDF Viewer */
     "PDFInvertPage": null, //missing translation
     "PDFPageCounter": {
@@ -280,6 +284,7 @@
     "passwordCaptureSave": null, //missing translation
     "passwordCaptureDontSave": null, //missing translation
     "passwordCaptureNeverSave": null, //missing translation
+    "generatePassword": null, // missing translation
     /* Password viewer */
     "savedPasswordsHeading": null, //missing translation
     "savedPasswordsEmpty": null, //missing translation

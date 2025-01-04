@@ -158,6 +158,7 @@
     "settingsAdditionalFeaturesHeading": "Papildomos ypatybės",
     "settingsUserscriptsToggle": "Įjungti naudotojo scenarijus",
     "settingsShowDividerToggle": null, // Missing translation
+    "settingsLanguageSelection": null, //missing translation
     "settingsSeparateTitlebarToggle": null, //missing translation
     "settingsAutoplayToggle": null, //missing translation 
     "settingsOpenTabsInForegroundToggle": null, //missing translation
@@ -235,6 +236,9 @@
     "appMenuShowAll": "Rodyti visus",
     "appMenuQuit": "Išeiti iš %n",
     "appMenuBringToFront": "Perkelti visus į priekį",
+    /* Tab menu */
+    "tabMenuNewWindow": null, // missing translation
+    "tabMenuReload": null, // missing translation
     /* PDF Viewer */
     "PDFInvertPage": null, //missing translation
     "PDFPageCounter": {
@@ -280,6 +284,7 @@
     "passwordCaptureSave": null, //missing translation
     "passwordCaptureDontSave": null, //missing translation
     "passwordCaptureNeverSave": null, //missing translation
+    "generatePassword": null, // missing translation
     /* Password viewer */
     "savedPasswordsHeading": null, //missing translation
     "savedPasswordsEmpty": null, //missing translation

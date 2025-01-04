@@ -158,6 +158,7 @@
     "settingsAdditionalFeaturesHeading": "追加機能",
     "settingsUserscriptsToggle": "ユーザースクリプトを有効にする",
     "settingsShowDividerToggle": "タブ間の仕切りを表示",
+    "settingsLanguageSelection": null, //missing translation
     "settingsSeparateTitlebarToggle": "別のタイトルバーを使用する",
     "settingsAutoplayToggle": "自動再生を有効にする",
     "settingsOpenTabsInForegroundToggle": "フォアグラウンドで新しいタブを開く",
@@ -237,6 +238,9 @@
     "appMenuShowAll": "すべてを表示",
     "appMenuQuit": "%nを終了",
     "appMenuBringToFront": "すべてを最前面に移動",
+    /* Tab menu */
+    "tabMenuNewWindow": null, // missing translation
+    "tabMenuReload": null, // missing translation
     /* PDF Viewer */
     "PDFInvertPage": null, //missing translation
     "PDFPageCounter": {
@@ -286,6 +290,7 @@
     "passwordCaptureSave": "保存する",
     "passwordCaptureDontSave": "保存しないで",
     "passwordCaptureNeverSave": "保存しない",
+    "generatePassword": null, // missing translation
     /* Password viewer */
     "savedPasswordsHeading": "保存されたパスワード",
     "savedPasswordsEmpty": "保存されたパスワードはありません。",

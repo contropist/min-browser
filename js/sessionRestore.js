@@ -4,6 +4,8 @@ var tabEditor = require('navbar/tabEditor.js')
 var tabState = require('tabState.js')
 var settings = require('util/settings/settings.js')
 var taskOverlay = require('taskOverlay/taskOverlay.js')
+const writeFileAtomic = require('write-file-atomic')
+const statistics = require('js/statistics.js')
 
 const sessionRestore = {
   savePath: window.globalArgs['user-data-path'] + (platformType === 'windows' ? '\\sessionRestore.json' : '/sessionRestore.json'),
@@ -40,11 +42,12 @@ const sessionRestore = {
 
     if (forceSave === true || stateString !== sessionRestore.previousState) {
       if (sync === true) {
-        fs.writeFileSync(sessionRestore.savePath, JSON.stringify(data))
+        writeFileAtomic.sync(sessionRestore.savePath, JSON.stringify(data), {})
       } else {
-        fs.writeFile(sessionRestore.savePath, JSON.stringify(data), function (err) {
+        writeFileAtomic(sessionRestore.savePath, JSON.stringify(data), {}, function (err) {
           if (err) {
             console.warn(err)
+            statistics.incrementValue('sessionRestoreSaveAsyncWriteErrors')
           }
         })
       }
@@ -171,7 +174,7 @@ const sessionRestore = {
 
       var backupSavePath = require('path').join(window.globalArgs['user-data-path'], 'sessionRestoreBackup-' + Date.now() + '.json')
 
-      fs.writeFileSync(backupSavePath, savedStringData)
+      writeFileAtomic.sync(backupSavePath, savedStringData, {})
 
       // destroy any tabs that were created during the restore attempt
       tabState.initialize()
@@ -184,6 +187,8 @@ const sessionRestore = {
 
       browserUI.switchToTask(newTask)
       browserUI.switchToTab(newSessionErrorTab)
+
+      statistics.incrementValue('sessionRestorationErrors')
     }
   },
   syncWithWindow: function () {
@@ -194,8 +199,14 @@ const sessionRestore = {
       // restore the task item
       tasks.add(task, undefined, false)
     })
-    //reuse an existing task or create a new task in this window
-    //same as windowSync.js
+
+    if (Object.hasOwn(window.globalArgs, 'initial-task')) {
+      browserUI.switchToTask(window.globalArgs['initial-task'])
+      return
+    }
+
+    // reuse an existing task or create a new task in this window
+    // same as windowSync.js
     var newTaskCandidates = tasks.filter(task => task.tabs.isEmpty() && !task.selectedInWindow && !task.name)
       .sort((a, b) => {
         return tasks.getLastActivity(b.id) - tasks.getLastActivity(a.id)
@@ -213,7 +224,7 @@ const sessionRestore = {
     } else {
       sessionRestore.syncWithWindow()
     }
-    if (settings.get('newWindowOption') === 2 && !Object.hasOwn(window.globalArgs, 'launch-window')) {
+    if (settings.get('newWindowOption') === 2 && !Object.hasOwn(window.globalArgs, 'launch-window') && !Object.hasOwn(window.globalArgs, 'initial-task')) {
       taskOverlay.show()
     }
   },

@@ -109,7 +109,7 @@ const webviews = {
   events: [],
   IPCEvents: [],
   hasViewForTab: function(tabId) {
-    return tabId && tasks.getTaskContainingTab(tabId) && tasks.getTaskContainingTab(tabId).tabs.get(tabId).hasBrowserView
+    return tabId && tasks.getTaskContainingTab(tabId) && tasks.getTaskContainingTab(tabId).tabs.get(tabId).hasWebContents
   },
   bindEvent: function (event, fn) {
     webviews.events.push({
@@ -214,7 +214,7 @@ const webviews = {
     }
 
     tasks.getTaskContainingTab(tabId).tabs.update(tabId, {
-      hasBrowserView: true
+      hasWebContents: true
     })
   },
   setSelected: function (id, options) { // options.focus - whether to focus the view. Defaults to true.
@@ -248,7 +248,7 @@ const webviews = {
 
     if (webviews.hasViewForTab(id)) {
       tasks.getTaskContainingTab(id).tabs.update(id, {
-        hasBrowserView: false
+        hasWebContents: false
       })
     }
     //we may be destroying a view for which the tab object no longer exists, so this message should be sent unconditionally
@@ -320,14 +320,13 @@ const webviews = {
   resize: function () {
     ipc.send('setBounds', { id: webviews.selectedId, bounds: webviews.getViewBounds() })
   },
-  goBackIgnoringRedirects: function (id) {
-    /* If the current page is an error page, we actually want to go back 2 pages, since the last page would otherwise send us back to the error page
-    TODO we want to do the same thing for reader mode as well, but only if the last page was redirected to reader mode (since it could also be an unrelated page)
-    */
+  goBackIgnoringRedirects: async function (id) {
+    const navHistory = await webviews.getNavigationHistory(id)
+    // If the current page is an internal page resulting from a redirect (error pages or reader mode), go back two pages
 
-    var url = tabs.get(id).url
+    var url = navHistory.entries[navHistory.activeIndex].url
 
-    if (url.startsWith(urlParser.parse('min://error'))) {
+    if (urlParser.isInternalURL(url) && navHistory.activeIndex > 1 && navHistory.entries[navHistory.activeIndex - 1].url === urlParser.getSourceURL(url)) {
       webviews.callAsync(id, 'canGoToOffset', -2, function (err, result) {
         if (!err && result === true) {
           webviews.callAsync(id, 'goToOffset', -2)
@@ -361,6 +360,9 @@ const webviews = {
       webviews.asyncCallbacks[callId] = cb
     }
     ipc.send('callViewMethod', { id: id, callId: callId, method: method, args: args })
+  },
+  getNavigationHistory: function (id) {
+    return ipc.invoke('getNavigationHistory', id)
   }
 }
 

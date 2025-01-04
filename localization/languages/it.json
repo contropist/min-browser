@@ -158,6 +158,7 @@
     "settingsAdditionalFeaturesHeading": "Funzionalità aggiuntive",
     "settingsUserscriptsToggle": "Abilita script definiti dall'utente",
     "settingsShowDividerToggle": "Mostra divisore tra i schede",
+    "settingsLanguageSelection": null, //missing translation
     "settingsSeparateTitlebarToggle": "Usa barra del titolo separata",
     "settingsAutoplayToggle": "Abilita Autoplay",
     "settingsOpenTabsInForegroundToggle": "Apri nuove schede in primo piano",
@@ -237,6 +238,9 @@
     "appMenuShowAll": "Mostra tutte",
     "appMenuQuit": "Esci da %n",
     "appMenuBringToFront": "Porta avanti",
+    /* Tab menu */
+    "tabMenuNewWindow": null, // missing translation
+    "tabMenuReload": null, // missing translation
     /* PDF Viewer */
     "PDFInvertPage": null, //missing translation
     "PDFPageCounter": {
@@ -286,6 +290,7 @@
     "passwordCaptureSave": "Salva",
     "passwordCaptureDontSave": "Non salvare",
     "passwordCaptureNeverSave": "Non salvare mai",
+    "generatePassword": null, // missing translation
     /* Password viewer */
     "savedPasswordsHeading": "Password salvate",
     "savedPasswordsEmpty": "Nessuna password salvata",
